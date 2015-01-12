@@ -1,3 +1,4 @@
 .idea
 Env
 *.pyc
+configuration.actual
