@@ -2,7 +2,8 @@ import re
 from bs4 import BeautifulSoup
 from error import BookingServiceError
 from service import raven_service
-from model.event import Booking, Event
+from model.booking import Booking
+from model.event import Event
 
 BOOKING_SERVICE_URL = 'https://www.mealbookings.cai.cam.ac.uk/index.php'
 

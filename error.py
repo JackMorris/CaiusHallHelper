@@ -4,3 +4,7 @@ class RavenAuthenticationError(Exception):
 
 class BookingServiceError(Exception):
     pass
+
+
+class ConfigurationError(Exception):
+    pass

@@ -1,0 +1,19 @@
+{
+    "default_crsid": "jm888",
+    "default_password": "password",
+    "users": [
+        {
+            "crsid": "jm888",
+            "password": "password",
+            "events": {
+                "mon": "first",
+                "tue": "first",
+                "wed": "first",
+                "thu": "first",
+                "fri": "first",
+                "sat": "caf",
+                "sun": "formal"
+            }
+        }
+    ]
+}
