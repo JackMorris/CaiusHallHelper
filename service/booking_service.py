@@ -2,7 +2,7 @@ import re
 from bs4 import BeautifulSoup
 from error import BookingServiceError
 from service import raven_service
-from model.event import Event
+from model.event import Booking, Event
 
 BOOKING_SERVICE_URL = 'https://www.mealbookings.cai.cam.ac.uk/index.php'
 
@@ -69,3 +69,28 @@ def is_event_occurring(event, date):
     event_url = event.url_for_date(date, BOOKING_SERVICE_URL)
     event_html = browser.open(event_url).read()
     return 'not running on' not in event_html
+
+
+def create_booking(event, user, date):
+    """ Attempt to book `user` into `event` on `date`.
+    :param event: Event instance for event to book in to
+    :param user: User instance for person to book in
+    :param date: datetime.date instance for date to book
+    :return: Booking instance representing the successful booking
+    :raises: BookingServiceError if the booking could not be made
+    """
+    if not is_event_occurring(event, date):
+        error_string = '%s not occurring on %s' % (str(event), str(date))
+        raise BookingServiceError(error_string)
+
+    crsid, password = user.crsid, user.password
+    browser = raven_service.get_authenticated_browser(crsid, password)
+    event_url = event.url_for_date(date, BOOKING_SERVICE_URL)
+    event_html = browser.open(event_url).read()
+    if 'Other dietary or non-dietary requirements' not in event_html:
+        # Not currently booked in, so make booking.
+        browser.select_form(nr=0)
+        browser.submit()
+        browser.select_form(nr=0)
+        browser.submit()
+    return Booking(event, user, date)
