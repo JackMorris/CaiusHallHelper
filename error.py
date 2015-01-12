@@ -1,0 +1,2 @@
+class RavenAuthenticationError(Exception):
+    pass
