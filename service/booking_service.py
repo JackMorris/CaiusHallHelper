@@ -1,9 +1,10 @@
 import re
 from bs4 import BeautifulSoup
+from error import BookingServiceError
 from service import raven_service
 from model.event import Event
 
-BOOKING_SERVICE_URL = 'https://www.mealbookings.cai.cam.ac.uk/'
+BOOKING_SERVICE_URL = 'https://www.mealbookings.cai.cam.ac.uk/index.php'
 
 
 def get_available_events():
@@ -25,3 +26,46 @@ def get_available_events():
             event_code = int(re.search('\d+', event_link).group(0))
             events.append(Event(code=event_code, name=event_name))
     return events
+
+
+def get_attendee_names(event, date):
+    """ Find the names of people attending `event` on `date`.
+    :param event: Event instance specifying event to check
+    :param date: datetime.date instance specifying the date to check
+    :return: list of Strings (names of attendees)
+    :raises: BookingServiceError if `event` isn't occurring on `date`
+    """
+    def get_attendee_name(attendee_cell):
+        """
+        :return: the name encapsulated within `attendee_cell`, or None
+        """
+        attendee_text = attendee_cell.get_text()
+        if len(attendee_text) > 0 and attendee_text[0] != '(':
+            return attendee_text
+        return None
+
+    if not is_event_occurring(event, date):
+        error_string = '%s not occurring on %s' % (str(event), str(date))
+        raise BookingServiceError(error_string)
+
+    browser = raven_service.get_default_authenticated_browser()
+    event_url = event.url_for_date(date, BOOKING_SERVICE_URL)
+    event_html = browser.open(event_url).read()
+    event_soup = BeautifulSoup(event_html)
+
+    attendance_table = event_soup.find_all('table', {'class': 'list'})[0]
+    attendee_cells = attendance_table.find_all('td')
+    attendee_names = map(get_attendee_name, attendee_cells)
+    return [attendee for attendee in attendee_names if attendee is not None]
+
+
+def is_event_occurring(event, date):
+    """ Ensure that `event` is occurring on `date`.
+    :param event: Event instance representing the event to check
+    :param date: datetime.date for the date to check
+    :return: bool, True if `event` is occurring on `date`
+    """
+    browser = raven_service.get_default_authenticated_browser()
+    event_url = event.url_for_date(date, BOOKING_SERVICE_URL)
+    event_html = browser.open(event_url).read()
+    return 'not running on' not in event_html

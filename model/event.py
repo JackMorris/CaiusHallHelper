@@ -20,6 +20,16 @@ class Event:
     def name(self):
         return self._name
 
+    def url_for_date(self, date, booking_service_url):
+        """ Return the URL for this event on `date`.
+        :param date: datetime.date instance for the date to use for this URL
+        :param booking_service_url: base URL for the booking service
+        :return: full URL for this event, taking place on `date`
+        """
+        code_string = 'event=%d' % self.code
+        date_string = 'date=%s' % date.strftime('%Y-%m-%d')
+        return booking_service_url + '?' + code_string + '&' + date_string
+
     def __str__(self):
         """
         :return: String representation of this event, in the format

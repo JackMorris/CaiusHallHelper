@@ -29,7 +29,8 @@ def get_default_authenticated_browser():
     """
     global _DEFAULT_AUTHENTICATED_BROWSER
     if _DEFAULT_AUTHENTICATED_BROWSER is None:
-        raise RavenAuthenticationError
+        error_message = 'No default credentials supplied to raven_service'
+        raise RavenAuthenticationError(error_message)
     return _DEFAULT_AUTHENTICATED_BROWSER
 
 
@@ -64,8 +65,8 @@ def get_authenticated_browser(crsid, password):
         browser.submit()
 
         if len(cookie_jar) == 0:
-            # No cookie returned, incorrect crsid/password.
-            raise RavenAuthenticationError()
+            error_message = 'Incorrect crsid/password combination'
+            raise RavenAuthenticationError(error_message)
         else:
             _CACHED_BROWSERS[crsid] = browser
     return _CACHED_BROWSERS[crsid]
