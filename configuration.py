@@ -12,22 +12,16 @@ class Configuration:
         `configuration_file_path`.
         :param configuration_file_path: path to configuration file. See
             `configuration.example` for an example configuration
-        :raises: ConfigurationError if the configuration file can't be loaded
+        :raises: ConfigurationError if the configuration file can't be loaded,
+            or is not in the correct format
         """
         try:
             with open(configuration_file_path, 'r') as configuration_file:
                 json_string = configuration_file.read().replace('\n', '')
-            json_data = json.loads(json_string)
-            self._default_crsid = json_data['default_crsid']
-            self._default_password = json_data['default_password']
-            self._users = []
-            for user_data in json_data['users']:
-                crsid = user_data['crsid']
-                password = user_data['crsid']
-                booking_preferences_dict = user_data['events']
-                booking_preferences = self._handle_booking_preferences_dict(
-                    booking_preferences_dict)
-                self._users.append(User(crsid, password, booking_preferences))
+            self._json_data = json.loads(json_string)
+            self._default_crsid = self._json_data['default_crsid']
+            self._default_password = self._json_data['default_password']
+            self._users = None
         except IOError:
             raise ConfigurationError('Cannot load configuration file')
         except KeyError:
@@ -77,4 +71,22 @@ class Configuration:
 
     @property
     def users(self):
-        return self._users
+        """ Get the list of users for this system configuration
+        :return: list of User instances
+        :raises: ConfigurationError if the supplied configuration file isn't
+            in the correct format
+        """
+        if self._users is not None:
+            return self._users
+        try:
+            self._users = []
+            for user_data in self._json_data['users']:
+                crsid = user_data['crsid']
+                password = user_data['crsid']
+                booking_preferences_dict = user_data['events']
+                booking_preferences = self._handle_booking_preferences_dict(
+                    booking_preferences_dict)
+                self._users.append(User(crsid, password, booking_preferences))
+            return self._users
+        except KeyError:
+            raise ConfigurationError('Incorrect configuration file format')

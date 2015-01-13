@@ -1,3 +1,6 @@
+from service import booking_service
+
+
 class User:
     """ Represents a single user of the system, with a Raven login, booking
     preferences and friends.
@@ -24,13 +27,20 @@ class User:
     def password(self):
         return self._password
 
-    def booking_preferences_for_date(self, date):
-        """ Find the events this user wishes to book in to on `date`.
-        :param date: datetime.date instance to retrieve events for
-        :return: list of Event instances that this user wishes to book in to
+    def create_bookings(self, date):
+        """ Make bookings for this user, based on their booking_preferences.
+        :param date: datetime.date indicating the day the bookings should be
+            made for
+        :return: list of Booking instances that were made
+        :raises BookingServiceError if the booking could not be made
         """
         day_index = int(date.strftime('%w'))
-        return self._booking_preferences[day_index]
+        events_to_book = self._booking_preferences[day_index]
+        bookings = []
+        for event in events_to_book:
+            booking = booking_service.create_booking(event, self, date)
+            bookings.append(booking)
+        return bookings
 
     def __str__(self):
         """
