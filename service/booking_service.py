@@ -60,6 +60,35 @@ def get_attendee_names(event, date):
     return [attendee for attendee in attendee_names if attendee is not None]
 
 
+def get_menu_text(event, date):
+    """ Get the text for the menu for `event` on `date`.
+    :param event: Event instance indicating the event to check the menu for
+    :param date: datetime.date instance indicate which day to check
+    :return: String containing the menu (newlines separating items), or None if
+        no menu is found
+    :raises: BookingServiceError is `event` isn't occurring on `date`
+    """
+    if not is_event_occurring(event, date):
+        error_string = '%s not occurring on %s' % (str(event), str(date))
+        raise BookingServiceError(error_string)
+    browser = raven_service.get_default_authenticated_browser()
+    event_url = event.url_for_date(date, BOOKING_SERVICE_URL)
+    event_html = browser.open(event_url).read()
+    event_soup = BeautifulSoup(event_html)
+
+    menu_divs = event_soup.find_all('div', {'class': 'menu'})
+    if len(menu_divs) == 0:
+        return None
+    menu_text = menu_divs[0].get_text().replace('\r', '\n')
+
+    # Menu text sometimes contains large spans of ' ', so remove them. Also
+    # remove stray spaces at the start/end of a line.
+    menu_text = re.sub(r'  +', '', menu_text)
+    menu_text = re.sub(r' ?\n ?', r'\n', menu_text)
+    menu_text = re.sub(r'(^\n)|(\n$)', r'', menu_text)
+    return menu_text
+
+
 def is_event_occurring(event, date):
     """ Ensure that `event` is occurring on `date`.
     :param event: Event instance representing the event to check
