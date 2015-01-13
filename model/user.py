@@ -1,4 +1,5 @@
-from service import booking_service
+from service import booking_service, email_service
+import re
 
 
 class User:
@@ -40,6 +41,36 @@ class User:
         for event in events_to_book:
             booking = booking_service.create_booking(event, self, date)
             bookings.append(booking)
+        return bookings
+
+    def email_report(self, date):
+        """ Email this user their report for `date`.
+        :param date: datetime.date instance for the report to reflect.
+        """
+        email_html = ''
+        for booking in self.get_all_bookings(date):
+            email_html += r"You're booked into <b>%s</b>." % booking.event.name
+            menu_text = booking_service.get_menu_text(booking.event, date)
+            if menu_text is None:
+                email_html += r" (no menu found)"
+            else:
+                menu_text = re.sub(r'\n', r'<br />', menu_text)
+                email_html += r" The menu:<br />" + menu_text
+            email_html += r"<br /><br />"
+        email_service.send_email(self, email_html)
+
+    def get_all_bookings(self, date):
+        """ Find all bookings for this user on `date`.
+        :param date: datetime.date instance for date to check
+        :return: list of Booking instances for all bookings on `date`
+        """
+        all_events = booking_service.get_available_events()
+        bookings = []
+        for event in all_events:
+            if booking_service.is_event_occurring(event, date):
+                booking = booking_service.get_booking(event, self, date)
+                if booking is not None:
+                    bookings.append(booking)
         return bookings
 
     def __str__(self):

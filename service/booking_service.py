@@ -124,3 +124,25 @@ def create_booking(event, user, date):
         browser.select_form(nr=0)
         browser.submit()
     return Booking(event, user, date)
+
+
+def get_booking(event, user, date):
+    """ Determine if `user` is booked into `event` on `date`.
+    :param event: Event instance for event to check
+    :param user: User instance for user to check
+    :param date: datetime.date instance for date to check
+    :return: Booking instance for booking if `user` is booked in to `event`,
+        or None if not
+    :raises: BookingServiceError if `event` doesn't take place on `date`.
+    """
+    if not is_event_occurring(event, date):
+        error_string = '%s not occurring on %s' % (str(event), str(date))
+        raise BookingServiceError(error_string)
+
+    crsid, password = user.crsid, user.password
+    browser = raven_service.get_authenticated_browser(crsid, password)
+    event_url = event.url_for_date(date, BOOKING_SERVICE_URL)
+    event_html = browser.open(event_url).read()
+    if 'Other dietary or non-dietary requirements' in event_html:
+        return Booking(event, user, date)
+    return None

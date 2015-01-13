@@ -1,6 +1,8 @@
 {
     "default_crsid": "jm888",
     "default_password": "password",
+    "gmail_username": "jack@gmail.com",
+    "gmail_password": "password",
     "users": [
         {
             "crsid": "jm888",

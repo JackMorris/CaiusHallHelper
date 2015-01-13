@@ -21,6 +21,8 @@ class Configuration:
             self._json_data = json.loads(json_string)
             self._default_crsid = self._json_data['default_crsid']
             self._default_password = self._json_data['default_password']
+            self._gmail_username = self._json_data['gmail_username']
+            self._gmail_password = self._json_data['gmail_password']
             self._users = None
         except IOError:
             raise ConfigurationError('Cannot load configuration file')
@@ -68,6 +70,14 @@ class Configuration:
     @property
     def default_password(self):
         return self._default_password
+
+    @property
+    def gmail_username(self):
+        return self._gmail_username
+
+    @property
+    def gmail_password(self):
+        return self._gmail_password
 
     @property
     def users(self):
