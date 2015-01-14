@@ -53,7 +53,9 @@ class User:
         """ Email this user their report for `date`.
         :param date: datetime.date instance for the report to reflect
         """
-        email_html = self._bookings_report(date)
+        date_string = date.strftime('Report for %A, %B %d')
+        email_html = '<h3><i>%s</i></h3>' % date_string
+        email_html += self._bookings_report(date)
         email_html += self._friend_attendance_report(date)
         email_html = r'<center>' + email_html + r'</center>'
         email_service.send_email(self, email_html)
