@@ -1,5 +1,5 @@
-from service import booking_service, email_service
 from error import BookingServiceError
+from service import booking_service, email_service
 
 
 class User:

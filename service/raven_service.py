@@ -1,7 +1,7 @@
 """ Responsible for interacting directly with the Raven service. """
 
-import mechanize
 import cookielib
+import mechanize
 from error import RavenAuthenticationError
 
 RAVEN_URL = 'https://raven.cam.ac.uk/auth/login.html'

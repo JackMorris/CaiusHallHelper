@@ -1,7 +1,7 @@
-from service import raven_service, email_service
+import sys
 from datetime import date, timedelta
 from configuration import Configuration
-import sys
+from service import raven_service, email_service
 
 
 def main():

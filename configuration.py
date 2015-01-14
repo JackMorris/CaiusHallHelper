@@ -1,6 +1,6 @@
 import json
-from model.user import User
 from error import ConfigurationError
+from model.user import User
 from service import booking_service
 
 
