@@ -33,12 +33,12 @@ class Booking:
             menu exists
         :return: String containing the generated HTML
         """
-        report_html = "You're booked into <b>%s</b>." % self.event.name
+        report_html = "<u><b>%s:</b></u><br /><br />" % self.event.name
         if menu_text is None:
-            report_html += r' (no menu found)'
+            report_html += r'(no menu found)'
         else:
             menu_html = re.sub(r'\n', r'<br />', menu_text)
-            report_html += r' The menu:<br />' + menu_html
+            report_html += menu_html
         report_html += r'<br /><br />'
         return report_html
 

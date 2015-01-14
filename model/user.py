@@ -53,16 +53,26 @@ class User:
         """ Email this user their report for `date`.
         :param date: datetime.date instance for the report to reflect
         """
-        email_html = ''
+        email_html = self._bookings_report(date)
+        email_html += self._friend_attendance_report(date)
+        email_html = r'<center>' + email_html + r'</center>'
+        email_service.send_email(self, email_html)
+
+    def _bookings_report(self, date):
+        """ Generate a HTML report containing booking information for `date`.
+        :param date: datetime.date instance for date to check
+        :return: String containing HTML report, describing which events this
+            user's booked in to on `date` (along with menus if they exist)
+        """
+        report_html = ''
         bookings = self.get_all_bookings(date)
         if len(bookings) > 0:
             for booking in bookings:
                 menu_text = booking_service.get_menu_text(booking.event, date)
-                email_html += booking.html_report(menu_text)
+                report_html += booking.html_report(menu_text)
         else:
-            email_html += r'No bookings<br /><br />'
-        email_html += self._friend_attendance_report(date)
-        email_service.send_email(self, email_html)
+            report_html += r'<i>No bookings</i><br /><br />'
+        return '<h2>~ Bookings ~</h2>' + report_html
 
     def _friend_attendance_report(self, date):
         """ Generate a HTML report containing the event attendance for this
@@ -85,12 +95,12 @@ class User:
                 return False
             friends_attending = filter(predicate, attendees)
             if len(friends_attending) > 0:
-                report_html += r'Friends attending %s:<br>' % event.name
+                report_html += r'<u><b>%s:</u></b><br /><br />' % event.name
                 report_html += r'<br />'.join(friends_attending)
                 report_html += r'<br /><br />'
         if len(report_html) == 0:
-            report_html += r'No friends in any hall'
-        return report_html
+            report_html += r'<i>No friends in any hall</i>'
+        return '<h2>~ Friends ~</h2>' + report_html
 
     def get_all_bookings(self, date):
         """ Find all bookings for this user on `date`.
