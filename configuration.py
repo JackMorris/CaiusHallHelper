@@ -93,10 +93,12 @@ class Configuration:
             for user_data in self._json_data['users']:
                 crsid = user_data['crsid']
                 password = user_data['crsid']
+                friends = user_data['friends']
                 booking_preferences_dict = user_data['events']
                 booking_preferences = self._handle_booking_preferences_dict(
                     booking_preferences_dict)
-                self._users.append(User(crsid, password, booking_preferences))
+                self._users.append(User(crsid, password, friends,
+                                        booking_preferences))
             return self._users
         except KeyError:
             raise ConfigurationError('Incorrect configuration file format')

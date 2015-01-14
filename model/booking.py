@@ -1,3 +1,6 @@
+import re
+
+
 class Booking:
     """ A Booking represents a booking for an event that has been made. """
 
@@ -22,6 +25,22 @@ class Booking:
     @property
     def date(self):
         return self._date
+
+    def html_report(self, menu_text):
+        """ Generate a HTML report for this booking, containing the event's
+        menu (if one exists).
+        :param menu_text: String containing text for the menu, or None if no
+            menu exists
+        :return: String containing the generated HTML
+        """
+        report_html = "You're booked into <b>%s</b>." % self.event.name
+        if menu_text is None:
+            report_html += r' (no menu found)'
+        else:
+            menu_html = re.sub(r'\n', r'<br />', menu_text)
+            report_html += r' The menu:<br />' + menu_html
+        report_html += r'<br /><br />'
+        return report_html
 
     def __str__(self):
         """

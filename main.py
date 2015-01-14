@@ -8,7 +8,7 @@ def main():
     configuration_file_path = sys.argv[1]
     configuration = Configuration(configuration_file_path)
     _authenticate_services(configuration)
-    #_make_user_bookings(configuration.users, 2)
+    _make_user_bookings(configuration.users, 2)
     _send_user_reports(configuration.users, 0)
 
 
