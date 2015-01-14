@@ -33,11 +33,11 @@ class Configuration:
         """ Converts a standard textual representation of booking preferences
         to a weekday_index->events list.
         :param booking_preferences_dict: dictionary, mapping three-letter day
-            codes (eg. 'mon', 'tue', ...) to a list of strings describing
-            events (eg. 'first', 'formal'), or a single string of this kind.
+            codes (eg. 'mon', 'tue', ...) to a string describing the event the
+            user wishes to book in to
         :return: list, indexed by day index (0 for Sunday, 1 for Monday, ...)
-            where the elements are lists of Event instances that the user
-            wishes to book in to on that day
+            where the elements are lists of Event instances that match the
+            user's booking preferences
         """
         day_strings = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
         available_events = booking_service.get_available_events()
@@ -46,21 +46,12 @@ class Configuration:
         for user_day_string in booking_preferences_dict:
             if user_day_string.lower() in day_strings:
                 day_index = day_strings.index(user_day_string.lower())
-                user_event_strings = booking_preferences_dict[user_day_string]
-                if type(user_event_strings) is unicode:
-                    # We want to deal with a list of events.
-                    if len(user_event_strings) == 0:
-                        user_event_strings = []
-                    else:
-                        user_event_strings = [user_event_strings]
-                events = []
-                for user_event_string in user_event_strings:
-                    def predicate(event):
-                        return user_event_string.lower() in event.name.lower()
-                    matching_events = filter(predicate, available_events)
-                    if len(matching_events) > 0:
-                        events.append(matching_events[0])
-                booking_preferences[day_index] = events
+                user_event_string = booking_preferences_dict[user_day_string]
+
+                def predicate(event):
+                    return user_event_string.lower() in event.name.lower()
+                matching_events = filter(predicate, available_events)
+                booking_preferences[day_index] = matching_events
         return booking_preferences
 
     @property

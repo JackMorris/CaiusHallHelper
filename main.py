@@ -8,7 +8,7 @@ def main():
     configuration_file_path = sys.argv[1]
     configuration = Configuration(configuration_file_path)
     _authenticate_services(configuration)
-    _make_user_bookings(configuration.users, 2)
+    _make_user_bookings(configuration.users, 3)
     _send_user_reports(configuration.users, 0)
 
 
@@ -31,7 +31,7 @@ def _make_user_bookings(users, days_in_advance):
     date_to_book = date.today() + timedelta(days=days_in_advance)
     bookings = []
     for user in users:
-        bookings += user.create_bookings(date_to_book)
+        bookings.append(user.create_booking(date_to_book))
     return bookings
 
 

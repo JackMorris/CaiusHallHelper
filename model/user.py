@@ -1,4 +1,5 @@
 from service import booking_service, email_service
+from error import BookingServiceError
 
 
 class User:
@@ -34,20 +35,20 @@ class User:
     def friends(self):
         return self._friends
 
-    def create_bookings(self, date):
-        """ Make bookings for this user, based on their booking_preferences.
+    def create_booking(self, date):
+        """ Make booking for this user, based on their booking_preferences.
         :param date: datetime.date indicating the day the bookings should be
             made for
-        :return: list of Booking instances that were made
-        :raises BookingServiceError if the booking could not be made
+        :return: Booking instance that was made, or None if no booking was made
         """
         day_index = int(date.strftime('%w'))
-        events_to_book = self._booking_preferences[day_index]
-        bookings = []
-        for event in events_to_book:
-            booking = booking_service.create_booking(event, self, date)
-            bookings.append(booking)
-        return bookings
+        for event in self._booking_preferences[day_index]:
+            try:
+                return booking_service.create_booking(event, self, date)
+            except BookingServiceError:
+                # Try the next event
+                continue
+        return None
 
     def email_report(self, date):
         """ Email this user their report for `date`.
