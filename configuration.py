@@ -83,7 +83,7 @@ class Configuration:
             self._users = []
             for user_data in self._json_data['users']:
                 crsid = user_data['crsid']
-                password = user_data['crsid']
+                password = user_data['password']
                 friends = user_data['friends']
                 booking_preferences_dict = user_data['events']
                 booking_preferences = self._handle_booking_preferences_dict(
