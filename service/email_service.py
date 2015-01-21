@@ -1,4 +1,5 @@
 import smtplib
+import unicodedata
 
 _USERNAME = None
 _PASSWORD = None
@@ -21,6 +22,9 @@ def send_email(user, body):
     """
     SMTP_SERVER = 'smtp.gmail.com'
     SMTP_PORT = 587
+
+    # Ensure our body is ascii
+    body = unicodedata.normalize('NFKD', body).encode('ascii', 'ignore')
 
     recipient = user.crsid + "@cam.ac.uk"
     headers = ['From: CaiusHallHelper <' + _USERNAME + '>',
